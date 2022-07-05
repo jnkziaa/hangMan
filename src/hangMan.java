@@ -3,6 +3,7 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.*;
 import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 public class hangMan {
     public static void main(String[] args) {
@@ -47,40 +48,61 @@ public class hangMan {
     }
 
     private static void userGuessWord(String word, Scanner in) throws InterruptedException {
-        List<Character> wordList = word.chars().mapToObj(a -> (char) a).collect(Collectors.toList());
+        List<Character> characterList = word.chars().mapToObj(a -> (char) a).collect(Collectors.toList());
+        List<Character> usedLetters = new ArrayList<>();
         StringBuilder strBuild = new StringBuilder();
         System.out.println(word);
-        for (int i = 0; i < wordList.size(); i++){
+        for (int i = 0; i < characterList.size(); i++){
             strBuild.append("_");
             System.out.print("_" + " ");
         }
         int counter = 0;
         while (counter < 6) {
             try {
+                System.out.println("\nUsed Letters: " + usedLetters);
                 System.out.print("\n\nPlease choose a letter from a - z: ");
                 String userGuesses = in.nextLine().toLowerCase();
-                if(wordList.contains(userGuesses.charAt(0))){
-                    System.out.println("\nWord contains " + userGuesses);
-                    int x = wordList.indexOf(userGuesses.charAt(0));
-                    strBuild.deleteCharAt(x);
-                    strBuild.insert(x, userGuesses.charAt(0));
+                if(!usedLetters.contains(userGuesses.charAt(0))) { //if a letter is already used then we cant reuse it
+                    if (characterList.contains(userGuesses.charAt(0))) { //if the user guessed letter is in the word then do this
 
-                    for(int i = 0; i < strBuild.toString().length(); i++){
-                        System.out.print(strBuild.charAt(i) + " ");
-                    }
+                        System.out.println("\nWord contains " + userGuesses + "\n"); //prompt
 
-                    if(strBuild.toString().equals(word)){
-                        System.out.println("\n\nYou guessed the word!!!");
-                        break;
+                        int x = characterList.indexOf(userGuesses.charAt(0)); //find index of those ltters
+                        List<Integer> indeces = IntStream.iterate(word.indexOf(userGuesses.charAt(0)), a ->a >= 0, a -> word.indexOf(userGuesses.charAt(0), a+1))
+                                        .boxed().collect(Collectors.toList());
+                        for (int temp : indeces) {
+                            strBuild.deleteCharAt(temp);
+                            strBuild.insert(temp, userGuesses.charAt(0));
+                        }
+                        usedLetters.add(userGuesses.charAt(0));
+                        for (int i = 0; i < strBuild.toString().length(); i++) {
+                            System.out.print(strBuild.charAt(i) + " ");
+                        }
+
+                        if (strBuild.toString().equals(word)) {
+                            System.out.println("\n\nYou guessed the word!!!");
+                            System.out.println("The word is : " + strBuild);
+                            break;
+                        }
+
+                    } else {
+                        counter++;
+                        int tryCounters = 6 - counter;
+                        usedLetters.add(userGuesses.charAt(0));
+                        System.out.println("\nWord does not contain " + userGuesses + ". Please try again.");
+                        System.out.println("You have " + tryCounters + " more tries");
+                        for (int i = 0; i < strBuild.toString().length(); i++) {
+                            System.out.print(strBuild.charAt(i) + " ");
+                        }
                     }
-                    continue;
                 }
                 else{
-                    counter++;
-                    int tryCounters = 6 - counter;
-                    System.out.println("\nWord does not contain " + userGuesses + ". Please try again.");
-                    System.out.println("You have " + tryCounters + " more tries");
-                    System.out.println(strBuild);
+                    System.out.println("Error: Letters cannot be used twice!");
+                    for (int i = 0; i < strBuild.toString().length(); i++) {
+                        System.out.print(strBuild.charAt(i) + " ");
+                    }
+                    System.out.println();
+
                 }
             }
             catch (InputMismatchException e){
@@ -104,7 +126,7 @@ public class hangMan {
 
     }
 
-    public static String playAgain(Scanner in) {
+    private static String playAgain(Scanner in) {
         String playAgain;
 
         while (true) {
@@ -130,13 +152,13 @@ public class hangMan {
 
 
     private static String wordRandomizer() {
-        List<String> strFiles = new ArrayList<>();
+        List<String> strFiles;
         try {
             strFiles = Files.lines(Paths.get("C:\\Users\\johna\\Downloads\\hangMan\\src\\randomWords.txt")).collect(Collectors.toList());
         }
         catch (IOException e){
             System.err.println("File does not exist");
-            return "No Files Found";
+            return "default";
         }
 
         Random rand = new Random();
