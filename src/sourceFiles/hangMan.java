@@ -1,3 +1,5 @@
+
+
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
@@ -179,7 +181,7 @@ public class hangMan {
     private static String wordRandomizer() {
         List<String> strFiles;
         try {
-            strFiles = Files.lines(Paths.get("src/randomWords.txt")).collect(Collectors.toList());
+            strFiles = Files.lines(Paths.get("src/sourceFiles/randomWords.txt")).collect(Collectors.toList());
         }
         catch (IOException e){
             System.err.println("File does not exist");
