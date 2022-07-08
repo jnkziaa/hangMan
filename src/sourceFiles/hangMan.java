@@ -41,7 +41,7 @@ public class hangMan {
         }
     }
 
-    private static void playTheGame() throws InterruptedException {
+    public static void playTheGame() throws InterruptedException {
         String word = wordRandomizer();
         System.out.println("\n\nThe word consists of " + word.length() + " letters!");
         Scanner in = new Scanner(System.in);
@@ -49,7 +49,7 @@ public class hangMan {
 
     }
 
-    private static void userGuessWord(String word, Scanner in) throws InterruptedException {
+    public static void userGuessWord(String word, Scanner in) throws InterruptedException {
         List<Character> characterList = word.chars().mapToObj(a -> (char) a).toList();
         List<Character> usedLetters = new ArrayList<>();
         StringBuilder strBuild = new StringBuilder();
@@ -71,7 +71,6 @@ public class hangMan {
                         hangManTemplate(counter);
                         System.out.println("\nWord contains " + userGuesses + "\n"); //prompt
 
-                        int x = characterList.indexOf(userGuesses.charAt(0)); //find index of those ltters
                         List<Integer> indeces = IntStream.iterate(word.indexOf(userGuesses.charAt(0)), a -> a >= 0, a -> word.indexOf(userGuesses.charAt(0), a + 1))
                                 .boxed().toList();
                         for (int temp : indeces) {
@@ -139,7 +138,7 @@ public class hangMan {
 
     }
 
-    private static void hangManTemplate(int counter) {
+    public static void hangManTemplate(int counter) {
         switch (counter) {
             case 0 -> System.out.println("________\n|       \n|       \n|               \n|               \n|________");
             case 1 -> System.out.println("________\n|      |\n|      O\n|              \n|            \n|________");
@@ -153,7 +152,7 @@ public class hangMan {
         }
     }
 
-    private static String playAgain(Scanner in) {
+    public static String playAgain(Scanner in) {
         String playAgain;
 
         while (true) {
@@ -178,7 +177,7 @@ public class hangMan {
     }
 
 
-    private static String wordRandomizer() {
+    public static String wordRandomizer() {
         List<String> strFiles;
         try {
             strFiles = Files.lines(Paths.get("src/sourceFiles/randomWords.txt")).collect(Collectors.toList());
