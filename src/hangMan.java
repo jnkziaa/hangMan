@@ -48,15 +48,17 @@ public class hangMan {
     }
 
     private static void userGuessWord(String word, Scanner in) throws InterruptedException {
-        List<Character> characterList = word.chars().mapToObj(a -> (char) a).collect(Collectors.toList());
+        List<Character> characterList = word.chars().mapToObj(a -> (char) a).toList();
         List<Character> usedLetters = new ArrayList<>();
         StringBuilder strBuild = new StringBuilder();
-        System.out.println(word);
+        int counter = 0;
+        hangManTemplate(counter);
+        System.out.print("Guessed Letter : ");
         for (int i = 0; i < characterList.size(); i++){
             strBuild.append("_");
             System.out.print("_" + " ");
         }
-        int counter = 0;
+
         while (counter < 6) {
             try {
                 System.out.println("\nUsed Letters: " + usedLetters);
@@ -64,17 +66,18 @@ public class hangMan {
                 String userGuesses = in.nextLine().toLowerCase();
                 if(!usedLetters.contains(userGuesses.charAt(0))) { //if a letter is already used then we cant reuse it
                     if (characterList.contains(userGuesses.charAt(0))) { //if the user guessed letter is in the word then do this
-
+                        hangManTemplate(counter);
                         System.out.println("\nWord contains " + userGuesses + "\n"); //prompt
 
                         int x = characterList.indexOf(userGuesses.charAt(0)); //find index of those ltters
-                        List<Integer> indeces = IntStream.iterate(word.indexOf(userGuesses.charAt(0)), a ->a >= 0, a -> word.indexOf(userGuesses.charAt(0), a+1))
-                                        .boxed().collect(Collectors.toList());
+                        List<Integer> indeces = IntStream.iterate(word.indexOf(userGuesses.charAt(0)), a -> a >= 0, a -> word.indexOf(userGuesses.charAt(0), a + 1))
+                                .boxed().toList();
                         for (int temp : indeces) {
                             strBuild.deleteCharAt(temp);
                             strBuild.insert(temp, userGuesses.charAt(0));
                         }
                         usedLetters.add(userGuesses.charAt(0));
+                        System.out.print("Guessed Letter : ");
                         for (int i = 0; i < strBuild.toString().length(); i++) {
                             System.out.print(strBuild.charAt(i) + " ");
                         }
@@ -89,8 +92,14 @@ public class hangMan {
                         counter++;
                         int tryCounters = 6 - counter;
                         usedLetters.add(userGuesses.charAt(0));
+                        hangManTemplate(counter);
+                        if(counter == 6){
+                            System.out.println("\nWord does not contain " + userGuesses +"! You're dead.");
+                            break;
+                        }
                         System.out.println("\nWord does not contain " + userGuesses + ". Please try again.");
                         System.out.println("You have " + tryCounters + " more tries");
+                        System.out.print("Guessed Letter : ");
                         for (int i = 0; i < strBuild.toString().length(); i++) {
                             System.out.print(strBuild.charAt(i) + " ");
                         }
@@ -98,6 +107,7 @@ public class hangMan {
                 }
                 else{
                     System.out.println("Error: Letters cannot be used twice!");
+                    System.out.print("Guessed Letter : ");
                     for (int i = 0; i < strBuild.toString().length(); i++) {
                         System.out.print(strBuild.charAt(i) + " ");
                     }
@@ -111,9 +121,10 @@ public class hangMan {
         }
 
         if(counter == 6) {
-            System.out.println("\nYOU LOST!!!!");
+            System.out.println("\n\nYOU LOST!!!!");
+            System.out.println("The Word was [" + word + "] !!");
         }
-        System.out.println("\nWould you like to play again? ");
+        System.out.println("\nWould you like to play again? (y or n)");
         String playAgainString = playAgain(in); //play again prompt
         if(playAgainString.equals("Game Restarting...")){
             System.out.println(playAgainString);
@@ -124,6 +135,20 @@ public class hangMan {
             System.exit(0);
         }
 
+    }
+
+    private static void hangManTemplate(int counter) {
+        switch (counter) {
+            case 0 -> System.out.println("________\n|       \n|       \n|               \n|               \n|________");
+            case 1 -> System.out.println("________\n|      |\n|      O\n|              \n|            \n|________");
+            case 2 -> System.out.println("________\n|      |\n|      O\n|     /        \n|            \n|________");
+            case 3 -> System.out.println("________\n|      |\n|      O\n|     /|        \n|            \n|________");
+            case 4 -> System.out.println("________\n|      |\n|      O\n|     /|\\        \n|            \n|________");
+            case 5 -> System.out.println("________\n|      |\n|      O\n|     /|\\       \n|     /        \n|________");
+            case 6 ->
+                    System.out.println("________\n|      |\n|      O\n|     /|\\       \n|     / \\       \n|________");
+            default -> System.out.println("The guy escaped");
+        }
     }
 
     private static String playAgain(Scanner in) {
@@ -154,7 +179,7 @@ public class hangMan {
     private static String wordRandomizer() {
         List<String> strFiles;
         try {
-            strFiles = Files.lines(Paths.get("C:\\Users\\johna\\Downloads\\hangMan\\src\\randomWords.txt")).collect(Collectors.toList());
+            strFiles = Files.lines(Paths.get("src/randomWords.txt")).collect(Collectors.toList());
         }
         catch (IOException e){
             System.err.println("File does not exist");
